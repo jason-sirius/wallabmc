@@ -82,10 +82,7 @@ static int validate_auth(struct http_client_ctx *client)
 
 	decoded_buf[decoded_len] = '\0';
 
-	uint8_t expected[CREDENTIALS_MAX_LEN];
-	snprintf(expected, sizeof(expected), "%s:%s", "admin", config_bmc_admin_password());
-
-	if (strcmp((char *)decoded_buf, expected) == 0)
+	if (config_bmc_admin_auth_check((char *)decoded_buf, ':'))
 		return 0; // Success!
 
 	LOG_WRN("Authentication did not match");
