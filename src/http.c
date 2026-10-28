@@ -152,18 +152,15 @@ int ws_validate_auth(int ws_socket, struct http_request_ctx *request_ctx, void *
 	rx_buf[rc] = '\0'; /* Nul terminate so we can strcmp it */
 
 	if (memcmp(rx_buf, auth_prefix, sizeof(auth_prefix) - 1)) {
-		LOG_WRN("No websocket auth message (%s)", rx_buf);
+		LOG_WRN("No websocket auth message");
 		websocket_disconnect(ws_socket);
 		return -EINVAL;
 	}
 
 	const char *auth = rx_buf + sizeof(auth_prefix) - 1;
 
-	uint8_t expected[CREDENTIALS_MAX_LEN];
-	snprintf(expected, sizeof(expected), "%s_%s", "admin", config_bmc_admin_password());
-
-	if (strcmp(auth, expected)) {
-		LOG_WRN("Websocket auth incorrect (%s)", rx_buf);
+	if (!config_bmc_admin_auth_check(auth, '_')) {
+		LOG_WRN("Websocket auth incorrect");
 		websocket_disconnect(ws_socket);
 		return -EPERM;
 	}
