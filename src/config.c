@@ -8,6 +8,7 @@ LOG_MODULE_REGISTER(wallabmc_config, LOG_LEVEL_INF);
 
 #include <zephyr/shell/shell.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/kernel.h>
@@ -177,9 +178,21 @@ bool config_host_auto_poweron(void)
 	return config_data.host_auto_poweron;
 }
 
-const char *config_bmc_admin_password(void)
+bool config_bmc_admin_auth_check(const char *presented, char sep)
 {
-	return config_data.bmc_admin_password;
+	char expected[sizeof("admin") + sizeof(config_data.bmc_admin_password)];
+	uint8_t diff = 0;
+	int len;
+
+	len = snprintf(expected, sizeof(expected), "admin%c%s", sep,
+		       config_data.bmc_admin_password);
+	if (len < 0 || (size_t)len >= sizeof(expected) || strlen(presented) != (size_t)len)
+		return false;
+
+	for (int i = 0; i < len; i++)
+		diff |= (uint8_t)expected[i] ^ (uint8_t)presented[i];
+
+	return diff == 0;
 }
 
 bool config_bmc_use_ntp(void)

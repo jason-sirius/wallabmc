@@ -24,7 +24,7 @@ bool config_bmc_use_dhcp4(void);
 int config_bmc_use_dhcp4_set(bool use);
 bool config_host_auto_poweron(void);
 int config_host_auto_poweron_set(bool on);
-const char *config_bmc_admin_password(void);
+bool config_bmc_admin_auth_check(const char *presented, char sep);
 bool config_bmc_https_psk(const char **psk, int *psk_len);
 bool config_bmc_wifi_enable(void);
 const char *config_bmc_wifi_ssid(void);
